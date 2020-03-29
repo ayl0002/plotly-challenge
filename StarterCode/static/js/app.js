@@ -4,9 +4,9 @@ var belly_data = "samples.json"
 
 function panelFunction(d) {
   d3.json("samples.json").then((data) => {
-      var mData = data.metadata;
+      var firstData = data.metadata;
 
-      var id_dropdown = mData.filter(sampleID => sampleID.id == d);
+      var id_dropdown = firstData.filter(sampleID => sampleID.id == d);
       var IDNum = id_dropdown[0];
 
       var metadisplay = d3.select("#sample-metadata");
@@ -21,27 +21,17 @@ function panelFunction(d) {
 //function to slice data and build new JSON object
 function getPlot(id) {
   d3.json(belly_data).then((data)=> {
-      // console.log(data);
+           var data = data.samples;
 
-      var wash_f = data.metadata.map(d => d.wfreq);
-      console.log(`Washing Freq: ${wash_f}`);
-
-      var id_data = {};
-
-      var id_data = data.samples;
-
-      // console.log(id_data);
-      
+      var id_data  = data.filter(sampleID => sampleID.id == id);
+          
       var id_names = []     
 
-      // var id_names = data.samples.map(d => d.id)
-      // console.log(`id: ${id_names}`)
-
-      function appendIDs(otus) {
+    function appendIDs(otus) {
         var d = []
         for (var i = 0; i < otus.length; i++) {
           d.push(otus[i].id);};
-      return d;              
+      return d[0];              
       };
     
       function appendOtu(otus) {
@@ -51,10 +41,11 @@ function getPlot(id) {
           e.push(otus[i].otu_ids);};
 
         for (var i = 0; i < e.length; i++) {
-          e_sliced.push(e[i].slice(0, 10));}; 
+          e_sliced.push(e[i].slice(0, 10).reverse());}; 
 
-      return e_sliced;              
+      return e_sliced[0];              
       };
+     
 
       function appendValues(otus) {
         var f = []
@@ -63,8 +54,8 @@ function getPlot(id) {
           f.push(otus[i].sample_values);};
 
         for (var i = 0; i < f.length; i++) {
-          f_sliced.push(f[i].slice(0, 10));};   
-      return f_sliced;              
+          f_sliced.push(f[i].slice(0, 10).reverse());};   
+      return f_sliced[0];              
       };
 
       id_names = appendIDs(id_data);
@@ -72,29 +63,47 @@ function getPlot(id) {
       otu_list = appendOtu(id_data);
 
       values_list = appendValues(id_data);
-     
+
+      otu_string = otu_list.toString().split(",")
+    
       console.log(id_names);
-      console.log(otu_list);   
+      console.log(otu_string);   
       console.log(values_list);
 
+      
+ //Bar Chart
 
-// var finalobj1 = {};
-// var finalarray1 = [];
+ var ylabels = otu_string.map(otuID => `OTU ${otuID}`)
 
-// for(var i = 0; i < id_names.length; i++)
-// finalobj1  = [otu_list[i]] = values_list[i];
-// finalarray1[i] = finalobj1.foreach()    
-       
-//     console.log(finalarray1)
+
+var tracebar= [{
+  y: ylabels,
+  x: values_list,
+  text: otu_string,
+  type: "bar",
+  orientation: "h",
+ }];
+
+var layout = {
+  title: `OTUs for ${id_names}`,
+  xaxis: { title: "Count of OTU"},
+  yaxis: {tickmode: "auto",tick0: 0.5,dtick: 0.75}
+};
+
+Plotly.newPlot("bar", tracebar, layout);
         
+      
       });
     };
 
+    
+
+
     function init() {
         var selector = d3.select("#selDataset");
-     d3.json("samples.json").then((data) => {
-          var sampleNames = data.names;
-          sampleNames.forEach((sample) => {
+     d3.json("samples.json").then((belly_data) => {
+          var IDDropDown = belly_data.names;
+          IDDropDown.forEach((sample) => {
               selector
                   .append("option")
                   .text(sample)
@@ -103,11 +112,11 @@ function getPlot(id) {
       });
   } 
   
-  // build the function to grab new data each time a new sample is selected
   function optionChanged(x) {
            panelFunction(x);
+           getPlot(x);
   }
 
-  getPlot(belly_data); 
+  // getPlot(belly_data); 
   init();
       
