@@ -73,41 +73,62 @@ function getPlot(id) {
       
  //Bar Chart
 
- var ylabels = otu_string.map(otuID => `OTU ${otuID}`)
+ var ylabelsforbar = otu_string.map(otuID => `OTU ${otuID}`)
 
 
 var tracebar= [{
-  y: ylabels,
+  y: ylabelsforbar,
   x: values_list,
   text: otu_string,
   type: "bar",
   orientation: "h",
  }];
 
-var layout = {
+var barlayout = {
   title: `OTUs for ${id_names}`,
-  xaxis: { title: "Count of OTU"},
+  xaxis: {title: "Count of OTU"},
   yaxis: {tickmode: "auto",tick0: 0.5,dtick: 0.75}
 };
 
-Plotly.newPlot("bar", tracebar, layout);
-        
-      
-      });
-    };
+Plotly.newPlot("bar", tracebar, barlayout);
+
+//bubble
+
+var xlabelsforbubble = otu_string.map(otuID => `OTU ${otuID}`)
+
+var bubbletrace = {
+  type: "scatter",
+  mode: "markers",
+  x: xlabelsforbubble,
+  y: values_list,
+  marker: {
+    size: values_list,
+    text : xlabelsforbubble    
+     },
+     showlegend: true
+};
+
+var bubdata = [bubbletrace];
+ 
+var bublayout = {
+  title: `Count of OTUs`
+};
+
+Plotly.plot("bubble", bubdata, bublayout);
 
     
-
+      });
+    };
 
     function init() {
         var selector = d3.select("#selDataset");
      d3.json("samples.json").then((belly_data) => {
           var IDDropDown = belly_data.names;
-          IDDropDown.forEach((sample) => {
+          IDDropDown.forEach((s) => {
               selector
                   .append("option")
-                  .text(sample)
-                  .property("value", sample);
+                  .text(s)
+                  .property("value", s);
           });       
       });
   } 
