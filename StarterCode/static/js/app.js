@@ -2,6 +2,22 @@
 var belly_data = "samples.json"
 // Incoming data is internally referred to as incomingData
 
+function panelFunction(d) {
+  d3.json("samples.json").then((data) => {
+      var mData = data.metadata;
+
+      var id_dropdown = mData.filter(sampleID => sampleID.id == d);
+      var IDNum = id_dropdown[0];
+
+      var metadisplay = d3.select("#sample-metadata");
+      metadisplay.html("");
+
+      Object.entries(IDNum).forEach(([key, value]) => {
+        metadisplay.append("h6").text(`${key}: ${value}`);
+      });
+  });
+};
+
 //function to slice data and build new JSON object
 function getPlot(id) {
   d3.json(belly_data).then((data)=> {
@@ -74,4 +90,24 @@ function getPlot(id) {
       });
     };
 
-      getPlot(belly_data); 
+    function init() {
+        var selector = d3.select("#selDataset");
+     d3.json("samples.json").then((data) => {
+          var sampleNames = data.names;
+          sampleNames.forEach((sample) => {
+              selector
+                  .append("option")
+                  .text(sample)
+                  .property("value", sample);
+          });       
+      });
+  } 
+  
+  // build the function to grab new data each time a new sample is selected
+  function optionChanged(x) {
+           panelFunction(x);
+  }
+
+  getPlot(belly_data); 
+  init();
+      
