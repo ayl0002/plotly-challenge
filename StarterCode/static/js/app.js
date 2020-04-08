@@ -120,8 +120,11 @@ Plotly.plot("bubble", bubdata, bublayout);
       });
     };
 
+// getPlot(belly_data); 
+// panelFunction(belly_data);
+
     function init() {
-        var selector = d3.select("#selDataset");
+      var selector = d3.select("#selDataset");
      d3.json("samples.json").then((belly_data) => {
           var IDDropDown = belly_data.names;
           IDDropDown.forEach((s) => {
@@ -130,14 +133,17 @@ Plotly.plot("bubble", bubdata, bublayout);
                   .text(s)
                   .property("value", s);
           });       
+        var initialload = IDDropDown[0];
+        getPlot(initialload);
+        panelFunction(initialload);
       });
   } 
   
-  function optionChanged(x) {
+   function optionChanged(x) {
            panelFunction(x);
            getPlot(x);
   }
 
-  // getPlot(belly_data); 
+ 
   init();
       
